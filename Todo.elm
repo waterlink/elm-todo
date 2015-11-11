@@ -59,5 +59,11 @@ todoCheckbox address done action name =
 
 todoTitleStyle : Bool -> Attribute
 todoTitleStyle done =
-  style
-    [ "text-decoration" => ( if done then "line-through" else "inherit" ) ]
+  let
+    textDecoration =
+      if done
+         then "line-through"
+         else "inherit"
+  in
+    style
+      [ "text-decoration" => textDecoration ]
