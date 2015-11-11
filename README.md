@@ -5,4 +5,17 @@ point).
 
 ## Development
 
-TODO
+After cloning this repo, install all dependencies with
+
+```bash
+elm-package install
+```
+
+Then run:
+
+```bash
+elm-make
+elm-reactor
+```
+
+And go to the URL: http://localhost:8000/Main.elm
