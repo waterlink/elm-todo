@@ -2,19 +2,21 @@ module Todo ( Model, init, Action, update, view ) where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, targetChecked)
+import Html.Events exposing (on, targetChecked, onClick, targetValue)
 
 -- MODEL
 
 type alias Model =
   { title : String
   , done : Bool
+  , editing : Bool
   }
 
 init : String -> Bool -> Model
 init title done =
   { title = title
   , done = done
+  , editing = False
   }
 
 -- UPDATE
@@ -22,19 +24,19 @@ init title done =
 type Action
   = Toggle
   | Rename String
+  | ToggleEdit
 
 update : Action -> Model -> Model
 update action model =
   case action of
     Toggle ->
-      { model |
-                done <- not model.done
-      }
+      { model | done <- not model.done }
 
     Rename title ->
-      { model |
-                title <- title
-      }
+      { model | title <- title }
+
+    ToggleEdit ->
+      { model | editing <- not model.editing }
 
 -- VIEW
 
@@ -43,17 +45,19 @@ update action model =
 view : Signal.Address Action -> Model -> Html
 view address model =
   div []
-    (todoCheckbox address model.done Toggle model.title)
+    (todoCheckbox address model Toggle)
 
-todoCheckbox : Signal.Address Action -> Bool -> Action -> String -> List Html
-todoCheckbox address done action name =
+todoCheckbox : Signal.Address Action -> Model -> Action -> List Html
+todoCheckbox address model action =
   [ input
         [ type' "checkbox"
-        , checked done
+        , checked model.done
         , on "change" targetChecked (\_ -> Signal.message address action)
         ]
         []
-  , span [ todoTitleStyle done ] [ text name ]
+  , todoText address model
+  , span [] [ text " " ]
+  , todoEdit address model.editing
   , br [] []
   ]
 
@@ -67,3 +71,20 @@ todoTitleStyle done =
   in
     style
       [ "text-decoration" => textDecoration ]
+
+todoEdit : Signal.Address Action -> Bool -> Html
+todoEdit address editing =
+  if editing
+     then a [ href "#", onClick address ToggleEdit ] [ text "done" ]
+     else a [ href "#", onClick address ToggleEdit ] [ text "edit" ]
+
+todoText : Signal.Address Action -> Model -> Html
+todoText address model =
+  if model.editing
+     then input
+       [ type' "text"
+       , value model.title
+       , on "input" targetValue (Signal.message address << Rename)
+       ]
+       [ ]
+     else span [ todoTitleStyle model.done ] [ text model.title ]
