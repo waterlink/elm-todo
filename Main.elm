@@ -1,11 +1,11 @@
 module Main where
 
-import Todo exposing (..)
+import TodoList exposing (..)
 import StartApp.Simple exposing (start)
 
 main =
   start
-    { model = init "Buy groceries" False
+    { model = init
     , update = update
     , view = view
     }

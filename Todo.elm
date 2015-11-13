@@ -1,4 +1,4 @@
-module Todo ( Model, init, Action, update, view ) where
+module Todo ( Model, init, Action, update, view, Context, viewWithContext, removeView ) where
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -45,10 +45,26 @@ update action model =
 view : Signal.Address Action -> Model -> Html
 view address model =
   div []
-    (todoCheckbox address model Toggle)
+    (todoCheckbox address model Toggle [])
 
-todoCheckbox : Signal.Address Action -> Model -> Action -> List Html
-todoCheckbox address model action =
+type alias Context =
+  { actions : Signal.Address Action
+  , remove : Signal.Address ()
+  }
+
+removeView : Context -> Html
+removeView context =
+  button [ onClick context.remove () ] [ text "remove" ]
+
+viewWithContext : Context -> Model -> List (Context -> Html) -> Html
+viewWithContext context model views =
+  let contextual = List.map (\v -> v context) views
+  in
+     div []
+       (todoCheckbox context.actions model Toggle contextual)
+
+todoCheckbox : Signal.Address Action -> Model -> Action -> List Html -> List Html
+todoCheckbox address model action contextual =
   [ input
         [ type' "checkbox"
         , checked model.done
@@ -58,8 +74,7 @@ todoCheckbox address model action =
   , todoText address model
   , span [] [ text " " ]
   , todoEdit address model.editing
-  , br [] []
-  ]
+  ] ++ contextual ++ [ br [] [] ]
 
 todoTitleStyle : Bool -> Attribute
 todoTitleStyle done =
