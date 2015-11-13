@@ -3,6 +3,8 @@
 This is just a simple application without any backend storage (at least at this
 point).
 
+[Demo](https://waterlink.github.io/elm-todo).
+
 ## Development
 
 After cloning this repo, install all dependencies with
